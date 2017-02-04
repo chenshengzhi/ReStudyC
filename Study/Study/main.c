@@ -58,6 +58,7 @@ typedef char k_test_add_ok_type;
 #define k_test_digit_breakup 1
 
 
+#pragma mark - utils -
 /**
  字符串翻转
 
@@ -96,6 +97,7 @@ int log_with_newline_suffix(char *fmt, ...) {
     return cnt;
 }
 
+#pragma mark - functions -
 
 /**
  读取每个字节, 并以十六进制打印
