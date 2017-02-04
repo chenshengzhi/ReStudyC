@@ -223,6 +223,12 @@ void print_binary2(int num) {
     CLog("%d的二进制为: %s", num, x_binary_string);
 }
 
+
+/**
+ 打印二进制次方字符串
+
+ @param num unsigned
+ */
 void print_breakup_to_binary(unsigned num) {
     int bit_num = sizeof(num) * 8;
     int is_first = 1;
@@ -240,7 +246,19 @@ void print_breakup_to_binary(unsigned num) {
     printf("\n");
 }
 
+
+/**
+ 将乘法分解成位移
+
+ @param x x
+ @param y y-被分解的数
+ */
 void multy_breakup_to_add(unsigned x, unsigned y) {
+    if (y > x) {
+        unsigned tmp = y;
+        y = x;
+        x = tmp;
+    }
     int64_t result = 0;
     int bit_num = sizeof(x) * 8;
     int is_first = 1;
