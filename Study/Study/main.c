@@ -20,32 +20,33 @@
 /**
  测试大小端
  */
-#define test_big_or_small_endian 1
+#define k_test_big_or_small_endian 1
 
 
 /**
  打印取值极限
  */
-#define print_digit_min_and_max 1
+#define k_print_digit_min_and_max 1
 
 
 /**
  测试溢出
  */
-#define test_add_ok 1
+#define k_test_add_ok 1
 
-#if test_add_ok
+#if k_test_add_ok
 
-#define test_add_ok_int     1
-#define test_add_ok_short   1
-#define test_add_ok_char    1
+#define k_test_add_ok_int     1
+#define k_test_add_ok_short   1
+#define k_test_add_ok_char    1
 
-#if test_add_ok_int
-typedef int test_add_ok_type;
-#elif test_add_ok_short
-typedef short test_add_ok_type;
-#elif test_add_ok_char
-typedef char test_add_ok_type;
+#if k_test_add_ok_int
+typedef int k_test_add_ok_type;
+#elif k_test_add_ok_short
+typedef short k_test_add_ok_type;
+#elif k_test_add_ok_char
+
+typedef char k_test_add_ok_type;
 #endif
 
 #endif
@@ -54,7 +55,7 @@ typedef char test_add_ok_type;
 /**
  测试分解数字成二进制表示
  */
-#define test_digit_breakup 1
+#define k_test_digit_breakup 1
 
 
 /**
@@ -65,7 +66,8 @@ typedef char test_add_ok_type;
  */
 void string_revert(char *p, size_t length) {
     char tmp;
-    for (int i = 0; i < (length - 1)/2; i++) {
+    size_t mid = (length - 1) / 2;
+    for (int i = 0; i < mid; i++) {
         tmp = p[i];
         p[i] = p[length - 1 - i];
         p[length - 1 - i] = tmp;
@@ -111,20 +113,20 @@ void dump_memory(char *p, int length) {
 /**
  判断2个数字相加是否正常或溢出
 
- @param a a
- @param b b
+ @param x x
+ @param y y
  @return 1-正常, 0-溢出
  */
-int add_ok(test_add_ok_type a, test_add_ok_type b) {
-    test_add_ok_type result = a + b;
-    test_add_ok_type a2 = result - b;
-    test_add_ok_type b2 = result - a;
+int add_ok(k_test_add_ok_type x, k_test_add_ok_type y) {
+    k_test_add_ok_type result = x + y;
+    k_test_add_ok_type x2 = result - y;
+    k_test_add_ok_type y2 = result - x;
     CLog("%d", result);
-    CLog("%d", a2);
-    CLog("%d", b2);
-    CLog("%d", (result - b));
-    CLog("%d", (result - a));
-    return (result-a == b) && (result-b == a);
+    CLog("%d", x2);
+    CLog("%d", y2);
+    CLog("%d", (result - y));
+    CLog("%d", (result - x));
+    return (result-x == y) && (result-y == x);
 }
 
 
@@ -221,16 +223,47 @@ void print_binary2(int num) {
     CLog("%d的二进制为: %s", num, x_binary_string);
 }
 
-void print_breakup_to_binary(int x) {
-    
+void print_breakup_to_binary(unsigned num) {
+    int bit_num = sizeof(num) * 8;
+    int is_first = 1;
+    printf(("%s %s [%d] : %d 分解成 : "), __TIME__, __FUNCTION__, __LINE__,  num);
+    for (int i = 0; i < bit_num; i++) {
+        if ((num & (1 << i)) > 0) {
+            if (is_first) {
+                is_first = 0;
+                printf("2^%d", i);
+            } else {
+                printf("+ 2^%d", i);
+            }
+        }
+    }
+    printf("\n");
 }
 
-
+void multy_breakup_to_add(unsigned x, unsigned y) {
+    int64_t result = 0;
+    int bit_num = sizeof(x) * 8;
+    int is_first = 1;
+    printf(("%s %s [%d] : %d * %d 分解成 : "), __TIME__, __FUNCTION__, __LINE__, x, y);
+    for (int i = 0; i < bit_num; i++) {
+        if ((y & (1 << i)) > 0) {
+            if (is_first) {
+                is_first = 0;
+                printf("%d * 2^%d", x, i);
+            } else {
+                printf(" + %d * 2^%d", x, i);
+            }
+            result += x << i;
+        }
+    }
+    printf("\n");
+    CLog("validate result : %d * %d = %lld,  result = %lld", x, y, (int64_t)x * y, result);
+}
 
 #pragma mark - main -
 
 int main(int argc, const char * argv[]) {
-#if test_big_or_small_endian
+#if k_test_big_or_small_endian
     CLog("测试大小端： ");
     
     union {
@@ -251,7 +284,7 @@ int main(int argc, const char * argv[]) {
     k_insert_new_line;
 #endif
     
-#if print_digit_min_and_max
+#if k_print_digit_min_and_max
     print_edge(1);
     print_edge(2);
     print_edge(4);
@@ -259,22 +292,24 @@ int main(int argc, const char * argv[]) {
     k_insert_new_line;
 #endif
     
-#if test_add_ok
+#if k_test_add_ok
     CLog("测试溢出");
-#if test_add_ok_int
+#if k_test_add_ok_int
     CLog("%d", add_ok(-2147483647, -15));
-#elif test_add_ok_short
+#elif k_test_add_ok_short
     CLog("%d", add_ok(32767, 55));
-#elif test_add_ok_char
+#elif k_test_add_ok_char
     CLog("%d", add_ok(127, 1));
 #endif
     k_insert_new_line;
 #endif
     
-#if test_digit_breakup
+#if k_test_digit_breakup
     CLog("测试分解数字成二进制");
-    print_binary(100);
-    print_binary2(100);
+    print_binary(12345);
+    print_binary2(12345);
+    print_breakup_to_binary(12345);
+    multy_breakup_to_add(54321, 12345);
     k_insert_new_line;
 #endif
     
